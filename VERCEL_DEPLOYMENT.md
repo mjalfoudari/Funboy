@@ -1,68 +1,64 @@
 # FunboyKW Vercel Deployment Guide
 
-## Prerequisites
+## Overview
 
-1. A Vercel account
-2. Your repository pushed to GitHub/GitLab/Bitbucket
+This guide explains how to deploy the FunboyKW website to Vercel using the Vercel dashboard, which is more reliable than the CLI approach.
 
 ## Deployment Steps
 
-### 1. Setup Vercel Postgres
+### 1. Push Your Code to GitHub
 
-The application has been configured to use Vercel Postgres. You need to:
+Ensure your code is pushed to GitHub (or another Git provider supported by Vercel):
 
-1. Go to the Vercel dashboard
-2. Create a new project or select your existing FunboyKW project
-3. Navigate to Storage > Create > Postgres Database
-4. Follow the prompts to create a new Postgres database
-5. Vercel will automatically add the required environment variables to your project:
-   - `POSTGRES_PRISMA_URL`
-   - `POSTGRES_URL_NON_POOLING`
-   - `POSTGRES_USER`
-   - `POSTGRES_HOST`
-   - `POSTGRES_PASSWORD`
-   - `POSTGRES_DATABASE`
+```bash
+git add .
+git commit -m "Prepare for Vercel deployment"
+git push origin main
+```
 
-### 2. Migrate Your Data
+### 2. Deploy Using Vercel Dashboard
 
-Since the application was previously using SQLite, you'll need to migrate your data:
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click on "Add New..." > "Project"
+3. Import your Git repository from the list
+4. Select the FunboyKW repository
 
-1. Export data from SQLite (locally)
-2. Import data into Postgres (on Vercel)
+### 3. Configure Environment Variables (Optional)
 
-For data migration, you can use Prisma migrations or a custom script.
+For the in-memory SQLite approach, no environment variables are needed, but you can set:
 
-### 3. Deploy Your Application
+- `DATABASE_URL`: If you have a specific database URL to use
 
-You can deploy the application using:
+### 4. Deploy
 
-1. **Vercel Dashboard**: Connect your repository and deploy
-2. **Vercel CLI**: Use `vercel --prod` from your terminal
+Click "Deploy" and wait for the build to complete.
 
-### 4. Environment Variables
+## Technical Information
 
-Ensure these environment variables are set in your Vercel project settings:
+### Database
 
-- `POSTGRES_PRISMA_URL` (added automatically when creating Vercel Postgres)
-- `POSTGRES_URL_NON_POOLING` (added automatically when creating Vercel Postgres)
-- `NEXTAUTH_SECRET` (add a secure random string)
-- `NEXTAUTH_URL` (set to your deployment URL)
+- The application uses SQLite for local development
+- On Vercel, it uses an in-memory SQLite database with auto-seeding
+- When deployed, the app will automatically create a minimal dataset if none exists
 
-### 5. Post-Deployment
+### Limitations
 
-After successful deployment:
+Since we're using an in-memory database on Vercel:
 
-1. Test the site functionality
-2. Check that product images load correctly
-3. Verify that database queries work properly
+1. Data will be reset when the Vercel instance restarts
+2. Only minimal data will be available (basic categories)
+3. This is suitable for demonstration purposes only
+
+For a production application, you would want to use:
+
+- Vercel Postgres
+- Vercel KV Store
+- Or another external database service
 
 ## Troubleshooting
 
-If you encounter issues:
+If deployment fails:
 
-1. Check Vercel logs in the dashboard or using `vercel logs [deployment-url]`
-2. Ensure all environment variables are correctly set
-3. Verify that Postgres connection is working
-4. Check that Next.js is configured correctly for Vercel deployment
-
-For local development, continue using SQLite by setting `DATABASE_URL="file:./prisma/dev.db"` in your local `.env` file. 
+1. Check the build logs in the Vercel dashboard
+2. Ensure your codebase successfully builds locally with `npm run build`
+3. Check that the in-memory database configuration is working correctly 
