@@ -12,6 +12,9 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000'),
   title: 'FunboyKW - Premium Pool Floats & Inflatables for Kuwait & Middle East',
   description: 'Discover luxury pool floats, inflatables, and water accessories. Premium quality products delivered to Kuwait and across the Middle East.',
   keywords: 'pool floats, inflatables, Kuwait, Middle East, luxury, water accessories, pool, summer',
