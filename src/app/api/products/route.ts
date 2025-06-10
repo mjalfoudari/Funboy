@@ -3,6 +3,47 @@ import prisma from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic';
 
+// Define Product and related types
+interface ProductImage {
+  id: string;
+  url: string;
+  altText: string | null;
+  sortOrder: number;
+}
+
+interface ProductVariant {
+  id: string;
+  name: string;
+  sku: string;
+  price: number | string;
+  inventory: number;
+  isActive: boolean;
+  color?: string | null;
+  size?: string | null;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number | string;
+  comparePrice: number | string | null;
+  images: ProductImage[];
+  category: Category | null;
+  variants: ProductVariant[];
+  createdAt: Date;
+  updatedAt: Date;
+  [key: string]: any; // For other product properties
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -33,7 +74,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Format the products to ensure consistent data structure
-    const formattedProducts = products.map(product => ({
+    const formattedProducts = products.map((product) => ({
       ...product,
       price: Number(product.price),
       comparePrice: product.comparePrice ? Number(product.comparePrice) : null,

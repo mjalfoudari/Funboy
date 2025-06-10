@@ -3,6 +3,19 @@ import prisma from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic';
 
+// Define the Category type
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image: string | null;
+  sortOrder: number;
+  _count?: {
+    products: number;
+  } | null;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -21,7 +34,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Add product counts and make sure all categories have the expected format
-    const formattedCategories = categories.map(category => ({
+    const formattedCategories = categories.map((category: Category) => ({
       ...category,
       _count: category._count || { products: 0 }
     }))
