@@ -1,15 +1,9 @@
 import { PrismaClient } from '@prisma/client'
 
-// Set default PostgreSQL URLs if not provided in environment
-if (!process.env.POSTGRES_PRISMA_URL) {
-  console.warn('POSTGRES_PRISMA_URL not found, using DATABASE_URL fallback')
-  // For local development, use SQLite
-  if (process.env.DATABASE_URL) {
-    console.log('Using DATABASE_URL for local development')
-  } else {
-    console.warn('No database connection found, using default SQLite path')
-    process.env.DATABASE_URL = 'file:./prisma/dev.db'
-  }
+// Ensure DATABASE_URL is always set to prevent deployment errors
+if (!process.env.DATABASE_URL) {
+  console.warn('DATABASE_URL not found, using default SQLite database path')
+  process.env.DATABASE_URL = 'file:./prisma/dev.db'
 }
 
 // PrismaClient is attached to the `global` object in development to prevent
