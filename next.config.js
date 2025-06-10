@@ -34,11 +34,20 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'funboy.com',
+        hostname: 'cdn.funboy.com',
         port: '',
-        pathname: '/cdn/**',
-      }
+        pathname: '**',
+      },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin/dashboard',
+        permanent: true,
+      },
+    ]
   },
 }
 
