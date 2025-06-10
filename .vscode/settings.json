@@ -1,0 +1,22 @@
+{
+  "cursor.background.agents.enabled": true,
+  "cursor.background.agents.executeCodeEnabled": true,
+  "cursor.background.agents.updateFrequency": "realtime",
+  "cursor.background.agents.logLevel": "info",
+  "cursor.background.agents.maxTokens": 16000,
+  "cursor.background.agents.defaultModel": "claude-3-5-sonnet",
+  "cursor.background.agents.maxRunTimeMs": 60000,
+  "cursor.background.agents.maxScanSize": 100000,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true
+  }
+} 
