@@ -1,0 +1,222 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Use SQLite for both local and Vercel
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  phone     String?
+  password  String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orders    Order[]
+  addresses Address[]
+
+  @@map("users")
+}
+
+model Address {
+  id         String  @id @default(cuid())
+  userId     String
+  street     String
+  city       String
+  state      String?
+  country    String
+  postalCode String
+  isDefault  Boolean @default(false)
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String @unique
+  slug        String @unique
+  description String?
+  image       String?
+  sortOrder   Int    @default(0)
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  price       Decimal
+  comparePrice Decimal?
+  costPrice   Decimal?
+  sku         String?
+  inventory   Int     @default(0)
+  isActive    Boolean @default(true)
+  isFeatured  Boolean @default(false)
+  categoryId  String
+  
+  // Product details
+  dimensions  String?
+  weight      String?
+  material    String?
+  colors      String? // JSON string of available colors
+  sizes       String? // JSON string of available sizes
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  // External references (for dropshipping)
+  amazonUrl      String?
+  funboyUrl      String?
+  externalSku    String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  category    Category      @relation(fields: [categoryId], references: [id])
+  images      ProductImage[]
+  orderItems  OrderItem[]
+  variants    ProductVariant[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        String @id @default(cuid())
+  productId String
+  url       String
+  altText   String?
+  sortOrder Int    @default(0)
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id         String  @id @default(cuid())
+  productId  String
+  name       String  // e.g., "Yellow Stripe - Large"
+  sku        String?
+  price      Decimal
+  inventory  Int     @default(0)
+  isActive   Boolean @default(true)
+  
+  // Variant attributes
+  color      String?
+  size       String?
+  
+  // Relations
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("product_variants")
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String?
+  email           String
+  phone           String?
+  status          String @default("PENDING")
+  
+  // Pricing
+  subtotal        Decimal
+  shippingCost    Decimal     @default(0)
+  taxAmount       Decimal     @default(0)
+  discountAmount  Decimal     @default(0)
+  total           Decimal
+  
+  // Shipping
+  shippingAddressId String?
+  
+  // Payment
+  paymentMethod   String?
+  paymentStatus   String @default("PENDING")
+  stripePaymentId String?
+  
+  // Fulfillment tracking
+  trackingNumber  String?
+  carrierName     String?
+  
+  // Dropshipping
+  externalOrderId String? // Order ID from Amazon/Funboy
+  fulfillmentNotes String? // Notes for manual fulfillment
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user            User?       @relation(fields: [userId], references: [id])
+  shippingAddress Address?    @relation(fields: [shippingAddressId], references: [id])
+  orderItems      OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String  @id @default(cuid())
+  orderId         String
+  productId       String
+  productVariantId String?
+  quantity        Int
+  unitPrice       Decimal
+  totalPrice      Decimal
+  
+  // Snapshot data (in case product changes)
+  productName     String
+  productSku      String?
+  variantName     String?
+
+  // Relations
+  order           Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product         Product         @relation(fields: [productId], references: [id])
+  productVariant  ProductVariant? @relation(fields: [productVariantId], references: [id])
+
+  @@map("order_items")
+}
+
+model AdminSettings {
+  id                String @id @default(cuid())
+  siteName          String @default("FunboyKW")
+  siteDescription   String?
+  currency          String @default("USD")
+  defaultMarkup     Decimal @default(30.00) // Default markup percentage
+  shippingRate      Decimal @default(25.00)
+  taxRate           Decimal @default(0.00)
+  
+  // Notifications
+  orderNotificationEmail String?
+  lowStockThreshold     Int @default(5)
+  
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_settings")
+}
+
+// SQLite doesn't support enums, so we use string fields instead
+// OrderStatus: PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED
+// PaymentStatus: PENDING, PAID, FAILED, REFUNDED 
